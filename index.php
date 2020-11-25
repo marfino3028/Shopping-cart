@@ -139,7 +139,7 @@ border-radius: 15px;
 	if (!empty($product_array)) { 
 		foreach($product_array as $key=>$value){
 	?>
-		<div class="product-item ml-3 mb-5">
+		<div class="product-item ml-3 mb-5 cardz" data-string="<?php echo $product_array[$key]["name"]; ?>">
 			<form method="post" action="index.php?action=add&code=<?php echo $product_array[$key]["code"]; ?>">
 			<?php
 			// include ImgCompressor.php
@@ -159,9 +159,9 @@ border-radius: 15px;
 			$ImgCompressor = new ImgCompressor($setting);
 
 			?>
-			<div class="product-image"><img src="<?php $result = $ImgCompressor->run('product-images/'.$product_array[$key]["image"], 'jpg', 5); echo 'product-images/comp_'.$product_array[$key]["image"]; ?>" width="150px" height="150px"></div>
+			<div class="product-image " ><img src="<?php $result = $ImgCompressor->run('product-images/'.$product_array[$key]["image"], 'jpg', 5); echo 'product-images/comp_'.$product_array[$key]["image"]; ?>" width="150px" height="150px"></div>
 			<div class="product-tile-footer">
-			<div class="product-title cardz" data-string="<?php echo $product_array[$key]["name"]; ?>" ><?php echo $product_array[$key]["name"]; ?></div>
+			<div class="product-title " ><?php echo $product_array[$key]["name"]; ?></div>
 			<div class="product-price"><?php echo "Rp. ".number_format($product_array[$key]["price"],0,',','.');?></div>
 			<div class="cart-action">
 			<input type="text" class="product-quantity" name="quantity" value="1" size="1" />			
