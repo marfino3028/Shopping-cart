@@ -46,10 +46,13 @@ switch($_GET["action"]) {
 <HTML>
 <HEAD>
 <TITLE>Shopping cart</TITLE>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link href="style.css" type="text/css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
-<link href="style.css" type="text/css" rel="stylesheet" />
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+	<link rel="stylesheet" href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+	<script src="//cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
 <style>
 .product-item{
 border-radius: 10px;
@@ -100,94 +103,34 @@ border-radius: 15px;
   <div class="card-header">Products  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="upload.php" type="button" class="btn btn-success">Add Products</a></div> <br>
-  <form class="form-inline d-flex justify-content-center md-form form-sm active-cyan active-cyan-2 mt-5">
-  <i class="fas fa-search" aria-hidden="true"></i>
-  <input class="form-control form-control-sm  w-75 filter" type="text" placeholder="Search" aria-label="Search"> <br>
-  
-</form>
-
-
-<div id="myBtnContainer">
-<div class="row">
- <div class="col-lg-4">
-  </div>
-  </div>
-
-  <div class="container">
+	
     <p class="card-text">
-	<?php
-	$batas = 6;
-	$halaman = isset($_GET['halaman'])?(int)$_GET['halaman'] : 1;
-	$halaman_awal = ($halaman>1) ? ($halaman * $batas) - $batas : 0;	
-	$Previous = $halaman - 1;
-	$next = $halaman + 1;
-	$data = $db_handle->runQuery("SELECT * FROM tblproduct");
-	$jumlah_data = count($data);
-	$total_halaman = ceil($jumlah_data / $batas);
-	$product_array = $db_handle->runQuery("SELECT * FROM tblproduct ORDER BY id ASC limit $halaman_awal, $batas");
+	<?php	
+	$product_array = $db_handle->runQuery("SELECT * FROM tblproduct ORDER BY id ASC");
 	if (!empty($product_array)) { 
 		foreach($product_array as $key=>$value){
-	?>
-		<div class="product-item ml-3 mb-5 cardz" data-string="<?php echo $product_array[$key]["name"]; ?>">
-			<form method="post" action="index.php?action=add&code=<?php echo $product_array[$key]["code"]; ?>">
-			<?php
-			// include ImgCompressor.php
-			include_once('lib/ImgCompressor.class.php');
-
-			// setting
-			$setting = array(
-			'directory' => 'product-images', // directory file compressed output
-			'file_type' => array( // file format allowed
-				'image/jpeg',
-				'image/png',
-				'image/gif'
-			)
-			);
-
-			// create object
-			$ImgCompressor = new ImgCompressor($setting);
-
 			?>
-			<div class="product-image " ><img src="<?php $result = $ImgCompressor->run('product-images/'.$product_array[$key]["image"], 'jpg', 5); echo 'product-images/comp_'.$product_array[$key]["image"]; ?>" width="150px" height="150px"></div>
+		<div class="product-item ml-3 mb-5">
+			<form method="post" action="index.php?action=add&code=<?php echo $product_array[$key]["code"]; ?>">
+			<table id="table_id" class="table table-striped table-bordered" style="width:100%">
+			<tr>
+			<td><div class="product-image" ><img src="<?php echo 'product-images/'.$product_array[$key]["image"]; ?>" width="150px" height="150px"></div></td>
 			<div class="product-tile-footer">
-			<div class="product-title " ><?php echo $product_array[$key]["name"]; ?></div>
-			<div class="product-price"><?php echo "Rp. ".number_format($product_array[$key]["price"],0,',','.');?></div>
-			<div class="cart-action">
-			<input type="text" class="product-quantity" name="quantity" value="1" size="1" />			
-		</div>
-		<br><br><br>
-		<input type="submit" value="Add to Cart" class="btn btn-primary btn-block waves-effect waves-light btn-block" />
+			<td><div class="product-title " ><?php echo $product_array[$key]["name"]; ?></div></td>
+			<td><div class="product-price"><?php echo "Rp. ".number_format($product_array[$key]["price"],0,',','.');?></div></td>
+			<td><div class="cart-action"><input type="text" class="product-quantity" name="quantity" value="1" size="1" /></div></td>		
+		
+		<td><input type="submit" value="Add to Cart" class="btn btn-primary btn-block waves-effect waves-light btn-block" /></td>
 	</div>
-			</form>
-			
+	</tr>
+	</table>
+			</form>		
 		</div>
 	<?php
 		}
 	}
 	?>
-
 </div>
-
-</div>
-<nav>
-			<ul class="pagination justify-content-center">
-				<li class="page-item">
-					<a class="page-link" <?php if($halaman > 1){ echo "href='?halaman=$Previous'"; } ?>>Previous</a>
-				</li>
-				<?php 
-				for($x=1;$x<=$total_halaman;$x++){
-					?> 
-					<li class="page-item"><a class="page-link" href="?halaman=<?php echo $x ?>"><?php echo $x; ?></a></li>
-					<?php
-				}
-				?>				
-				<li class="page-item">
-					<a  class="page-link" <?php if($halaman < $total_halaman) { echo "href='?halaman=$next'"; } ?>>Next</a>
-				</li>
-			</ul>
-		</nav>
-</div>
-
 	</p>
   </div>
 </div>
@@ -259,18 +202,16 @@ if(isset($_SESSION["cart_item"])){
 </div>
 </div>
 <script>
-
-$(".filter").on("keyup", function() {
-  var input = $(this).val().toUpperCase();
-
-  $(".cardz").each(function() {
-    if ($(this).data("string").toUpperCase().indexOf(input) < 0) {
-      $(this).hide();
-    } else {
-      $(this).show();
-    }
+$(function () {
+    $('#example').DataTable({
+      'paging'      : true,
+      'lengthChange': true,
+      'searching'   : false,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : true
+    })
   })
-});
 </script>
 </BODY>
 </HTML>
