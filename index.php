@@ -102,10 +102,9 @@ border-radius: 15px;
   <a href="upload.php" type="button" class="btn btn-success">Add Products</a></div> <br>
   <form class="form-inline d-flex justify-content-center md-form form-sm active-cyan active-cyan-2 mt-5">
   <i class="fas fa-search" aria-hidden="true"></i>
-  <input class="form-control form-control-sm  w-75 filter" type="text" placeholder="Search" aria-label="Search"> <br>
+  <input class="form-control form-control-sm  w-75 filter" id="search" name="search" type="text" placeholder="Search" aria-label="Search"> <br>
   
 </form>
-
 
 <div id="myBtnContainer">
 <div class="row">
@@ -170,22 +169,20 @@ border-radius: 15px;
 
 </div>
 <nav>
-			<ul class="pagination justify-content-center">
-				<li class="page-item">
-					<a class="page-link" <?php if($halaman > 1){ echo "href='?halaman=$Previous'"; } ?>>Previous</a>
-				</li>
-				<?php 
-				for($x=1;$x<=$total_halaman;$x++){
-					?> 
-					<li class="page-item"><a class="page-link" href="?halaman=<?php echo $x ?>"><?php echo $x; ?></a></li>
-					<?php
-				}
-				?>				
-				<li class="page-item">
-					<a  class="page-link" <?php if($halaman < $total_halaman) { echo "href='?halaman=$next'"; } ?>>Next</a>
-				</li>
-			</ul>
-		</nav>
+	<ul class="pagination justify-content-center">
+		<li class="page-item">
+			<a class="page-link" <?php if($halaman > 1){ echo "href='?halaman=$Previous'"; } ?>>Previous</a>
+		</li>
+			<?php for($x=1;$x<=$total_halaman;$x++){?> 
+		<li class="page-item"><a class="page-link" href="?halaman=<?php echo $x ?>"><?php echo $x; ?></a></li>
+			<?php
+			}
+			?>				
+		<li class="page-item">
+			<a  class="page-link" <?php if($halaman < $total_halaman) { echo "href='?halaman=$next'"; } ?>>Next</a>
+		</li>
+	</ul>
+</nav>
 </div>
 
 	</p>
