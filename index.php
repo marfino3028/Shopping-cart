@@ -1,4 +1,5 @@
 <?php
+//18:47
 session_start();
 require_once("dbcontroller.php");
 $db_handle = new DBController();
@@ -46,8 +47,14 @@ switch($_GET["action"]) {
 <HTML>
 <HEAD>
 <TITLE>Shopping cart</TITLE>
+
+<link href="dist/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<script src="dist/jquery-3.4.1.min.js"></script>
+<script src="dist/bootstrap/js/bootstrap.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"
+
 <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 <link href="style.css" type="text/css" rel="stylesheet" />
 <style>
@@ -101,91 +108,36 @@ border-radius: 15px;
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="upload.php" type="button" class="btn btn-success">Add Products</a></div> <br>
   <form class="form-inline d-flex justify-content-center md-form form-sm active-cyan active-cyan-2 mt-5">
-  <i class="fas fa-search" aria-hidden="true"></i>
-  <input class="form-control form-control-sm  w-75 filter" id="search" name="search" type="text" placeholder="Search" aria-label="Search"> <br>
+	<i class="fas fa-search" aria-hidden="true"></i>
+		<input class="form-control form-control-sm  w-75 filter" id="search" name="search" type="text" placeholder="Search" aria-label="Search">
+	<br>
   
 </form>
 
 <div id="myBtnContainer">
 <div class="row">
- <div class="col-lg-4">
+ <div class="col-lg-6">
   </div>
   </div>
 
-  <div class="container">
-    <p class="card-text">
+	<div class="container">
+    <div class="card-text">
+	<div id="product-card"></div>
 	<?php
-	$batas = 6;
-	$halaman = isset($_GET['halaman'])?(int)$_GET['halaman'] : 1;
-	$halaman_awal = ($halaman>1) ? ($halaman * $batas) - $batas : 0;	
-	$Previous = $halaman - 1;
-	$next = $halaman + 1;
-	$data = $db_handle->runQuery("SELECT * FROM tblproduct");
-	$jumlah_data = count($data);
-	$total_halaman = ceil($jumlah_data / $batas);
-	$product_array = $db_handle->runQuery("SELECT * FROM tblproduct ORDER BY id ASC limit $halaman_awal, $batas");
-	if (!empty($product_array)) { 
-		foreach($product_array as $key=>$value){
+	
+	$product_array = $db_handle->runQuery("SELECT * FROM tblproduct ORDER BY id ASC");
+	
 	?>
-		<div class="product-item ml-3 mb-5 cardz" data-string="<?php echo $product_array[$key]["name"]; ?>">
-			<form method="post" action="index.php?action=add&code=<?php echo $product_array[$key]["code"]; ?>">
-			<?php
-			// include ImgCompressor.php
-			include_once('lib/ImgCompressor.class.php');
 
-			// setting
-			$setting = array(
-			'directory' => 'product-images', // directory file compressed output
-			'file_type' => array( // file format allowed
-				'image/jpeg',
-				'image/png',
-				'image/gif'
-			)
-			);
-
-			// create object
-			$ImgCompressor = new ImgCompressor($setting);
-
-			?>
-			<div class="product-image " ><img src="<?php $result = $ImgCompressor->run('product-images/'.$product_array[$key]["image"], 'jpg', 5); echo 'product-images/comp_'.$product_array[$key]["image"]; ?>" width="150px" height="150px"></div>
-			<div class="product-tile-footer">
-			<div class="product-title " ><?php echo $product_array[$key]["name"]; ?></div>
-			<div class="product-price"><?php echo "Rp. ".number_format($product_array[$key]["price"],0,',','.');?></div>
-			<div class="cart-action">
-			<input type="text" class="product-quantity" name="quantity" value="1" size="1" />			
-		</div>
-		<br><br><br>
-		<input type="submit" value="Add to Cart" class="btn btn-primary btn-block waves-effect waves-light btn-block" />
 	</div>
-			</form>
-			
-		</div>
-	<?php
-		}
-	}
-	?>
-
-</div>
+	</div>
 
 </div>
 <nav>
-	<ul class="pagination justify-content-center">
-		<li class="page-item">
-			<a class="page-link" <?php if($halaman > 1){ echo "href='?halaman=$Previous'"; } ?>>Previous</a>
-		</li>
-			<?php for($x=1;$x<=$total_halaman;$x++){?> 
-		<li class="page-item"><a class="page-link" href="?halaman=<?php echo $x ?>"><?php echo $x; ?></a></li>
-			<?php
-			}
-			?>				
-		<li class="page-item">
-			<a  class="page-link" <?php if($halaman < $total_halaman) { echo "href='?halaman=$next'"; } ?>>Next</a>
-		</li>
-	</ul>
+	<ul class="pagination justify-content-center"></ul>
 </nav>
 </div>
 
-	</p>
   </div>
 </div>
 	
@@ -256,17 +208,102 @@ if(isset($_SESSION["cart_item"])){
 </div>
 </div>
 <script>
+var productAry = <?= json_encode($product_array) ?>;
+var searching  = '';
+
+function initData(page = 1, search = '')
+{
+	if(productAry.length > 0)
+	{
+		let data = [];
+		
+		if(search != '')
+		{
+			searching = search;
+			
+			productAry.forEach(e => {
+				if(e.name.toLocaleUpperCase().match(new RegExp(search)))	
+				{
+					data.push(e);
+				}
+			});
+		}
+		else
+		{
+			searching = '';
+			data = productAry;
+		}
+		
+		let txt 	= '';
+		let i		= 0;
+		let max 	= page == 1? 6 : page * 6;
+		let paging	= Math.ceil(data.length / 6);
+		let active  = '';
+		
+		
+		for(let row=(max-6); row < data.length; row++)
+		{
+			if(row == max)
+			{
+				break;
+			}
+			else
+			{
+				txt += `
+				<div class="product-item ml-3 mb-5 cardz">
+					<form method="post" action="index.php?action=add&code=${data[row].code}">
+						<div class="product-image">
+							<img src="product-images/${data[row].image}" width="150px" height="150px">
+						</div>
+						<div class="product-tile-footer">
+								<div class="product-title ">${data[row].name}</div>
+								<div class="product-price">Rp ${new Intl.NumberFormat().format(data[row].price)}</div>
+								<div class="cart-action">
+								<input type="text" class="product-quantity" name="quantity" value="1" size="1" />			
+							</div>
+							<br><br><br>
+							<input type="submit" value="Add to Cart" class="btn btn-primary btn-block waves-effect waves-light btn-block" />
+						</div>
+					</form>
+				</div>`;
+			}
+		}
+			
+		$('.pagination').empty();
+		
+		$('.pagination').append(`<li class="page-item">
+			<a class="page-link"  href="javascript:" onClick="${page > 1 ? 'paging('+ (page-1) +')' : ''}">Previous</a>
+		</li>`);
+		
+		
+		for(let page_in = 1; page_in <= paging; page_in++)
+		{
+			$('.pagination').append(`<li class="page-item ${page == page_in? 'active' : ''}">
+				<a class="page-link" href="javascript:" onClick="paging(${page_in})">${page_in}</a>
+			</li>`);
+		}
+		
+		
+		$('.pagination').append(`<li class="page-item">
+			<a  class="page-link" href="javascript:" onClick="${paging == page? '' : 'paging('+ (page+1) +')'}">Next</a>
+		</li>`);
+			
+		
+		$('#product-card').empty();
+		$('#product-card').append(txt);
+	}
+}
+
+function paging(page)
+{
+	initData(page,searching);
+}
+
+initData(1);
 
 $(".filter").on("keyup", function() {
-  var input = $(this).val().toUpperCase();
-
-  $(".cardz").each(function() {
-    if ($(this).data("string").toUpperCase().indexOf(input) < 0) {
-      $(this).hide();
-    } else {
-      $(this).show();
-    }
-  })
+	let input = $(this).val().toUpperCase();
+	initData(1, input);
 });
 </script>
 </BODY>
